@@ -8,5 +8,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Sigita1" />
     <orderEntry type="module" module-name="Sigita" />
+    <orderEntry type="module" module-name="CoinMonitorBot" />
+    <orderEntry type="module" module-name="LuxuryCasinoBot" />
   </component>
 </module>

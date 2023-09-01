@@ -1,3 +1,4 @@
 selenium
 vk_api
 vk_requests
+python-dotenv
