@@ -671,7 +671,7 @@ def check_registration(user_id):
     return user_id in members
 
 
-def PARSER_TOKEN_updater():
+def parser_token_updates():
     global PARSER_TOKEN
 
     seconds = 0
@@ -685,9 +685,9 @@ def PARSER_TOKEN_updater():
             seconds = 0
 
             options = Options()
-            service = Service(executable_path='driver/chromedriver.exe', log_path=os.devnull)
-
             options.add_argument('--headless')
+
+            service = Service(executable_path='driver/chromedriver.exe', log_path=os.devnull)
 
             driver = webdriver.Chrome(options=options, service=service)
 
@@ -1468,7 +1468,7 @@ if __name__ == '__main__':
     session = vk_api.VkApi(token=BOT_TOKEN)
     longpoll = VkLongPoll(session)
 
-    parser_update_thread = threading.Thread(target=PARSER_TOKEN_updater)
+    parser_update_thread = threading.Thread(target=parser_token_updates)
     parser_update_thread.start()
 
     messages_timer_thread = threading.Thread(target=messages_timer)
