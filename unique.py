@@ -49,8 +49,7 @@ def update_db(age, sex):
         try:
             print(requests_count, '/', len(top_users))
 
-            friends = api.friends.get(user_id=user['id'],
-                                      fields='sex, bdate, can_write_private_message')['items']
+            friends = api.friends.get(user_id=user['id'], fields='sex, bdate, can_write_private_message')['items']
 
             time.sleep(0.1)
 
@@ -80,8 +79,7 @@ def update_db(age, sex):
         try:
             print(requests_count, '/', len(top_users_friends) + len(top_users))
 
-            friends = api.friends.get(user_id=profile['id'],
-                                      fields='sex, bdate, can_write_private_message')['items']
+            friends = api.friends.get(user_id=profile['id'], fields='sex, bdate, can_write_private_message')['items']
 
             time.sleep(0.1)
 
@@ -128,9 +126,11 @@ def update_db(age, sex):
 
         profile_hash = get_profile_hash(profile['id'])
 
-        profiles_dict[str(profile['id'])] = {'age': profiles[profiles.index(profile)]['age'],
-                                             'sex': profiles[profiles.index(profile)]['sex'],
-                                             'hash': profile_hash}
+        profiles_dict[str(profile['id'])] = {
+            'age': profiles[profiles.index(profile)]['age'],
+            'sex': profiles[profiles.index(profile)]['sex'],
+            'hash': profile_hash
+        }
 
     if os.path.exists('db.json'):
         with open(f'db.json', 'r') as profiles_db:
@@ -161,33 +161,65 @@ def get_keyboard(buttons):
         for k in range(len(buttons[i])):
             text = buttons[i][k][0]
 
-            color = {'зеленый': 'positive', 'красный': 'negative', 'синий': 'primary', 'белый': 'secondary'}[
-                buttons[i][k][1]]
+            colors = {
+                'зеленый': 'positive',
+                'красный': 'negative',
+                'синий': 'primary',
+                'белый': 'secondary'
+            }
 
-            nb[i][k] = {'action': {'type': 'text', 'payload': '{\"button\": \"' + '1' + '\"}', 'label': text},
-                        'color': color}
+            color = colors[buttons[i][k][1]]
 
-    first_keyboard = {'one_time': False, 'buttons': nb}
+            nb[i][k] = {
+                'action': {
+                    'type': 'text',
+                    'payload': '{\"button\": \"' + '1' + '\"}', 'label': text
+                },
+                'color': color
+            }
+
+    first_keyboard = {
+        'one_time': False,
+        'buttons': 
+    }
+
     first_keyboard = json.dumps(first_keyboard, ensure_ascii=False).encode('utf-8')
-    first_keyboard = str(first_keyboard.decode('utf-8'))
+
+    first_keyboard = first_keyboard.decode('utf-8')
 
     return first_keyboard
 
 
 def send(user_id, text, key=None):
     if key is not None:
-        session.method('messages.send',
-                       {'user_id': user_id, 'message': text, 'random_id': 0, 'keyboard': key, 'dont_parse_links': 1})
+        session.method(
+            'messages.send',
+            {
+                'user_id': user_id,
+                'message': text,
+                'random_id': 0,
+                'keyboard': key,
+                'dont_parse_links': 1
+            }
+        )
 
     else:
-        session.method('messages.send',
-                       {'user_id': user_id, 'message': text, 'random_id': 0, 'dont_parse_links': 1})
+        session.method(
+            'messages.send',
+            {
+                'user_id': user_id,
+                'message': text,
+                'random_id': 0,
+                'dont_parse_links': 1
+            }
+        )
 
 
 def print_facts(profile_id):
-    profile_info = api.users.get(user_ids=profile_id,
-                                 fields='sex, activities, books, city, site, games, interests, '
-                                        'movies, music, online, personal, quotes, tv')[0]
+    profile_info = api.users.get(
+        user_ids=profile_id,
+        fields='sex, activities, books, city, site, games, interests, movies, music, online, personal, quotes, tv'
+    )[0]
 
     political = [
         'Коммунистические',
@@ -481,9 +513,13 @@ def get_profile_hash(profile_id):
     for item in info:
         md5.update(item.encode())
         info_key_hash = md5.hexdigest()
+
         info_key_hash = int(info_key_hash, 16)
+
         hash_length = len(str(info_key_hash))
+
         delimeter = int('1' + '0' * (hash_length - hash_length // 5))
+
         info_key_hash /= delimeter
 
         if type(info[item]) == int:
@@ -495,19 +531,29 @@ def get_profile_hash(profile_id):
 
             for list_item in info[item]:
                 md5.update(list_item.encode())
+
                 info_value_hash = md5.hexdigest()
+
                 info_value_hash = int(info_value_hash, 16)
+
                 hash_length = len(str(info_value_hash))
+
                 delimeter = int('1' + '0' * (hash_length - hash_length // 5))
+
                 info_value_hash /= delimeter
                 profile_hash += info_value_hash
 
         else:
             md5.update(info[item].encode())
+
             info_value_hash = md5.hexdigest()
+
             info_value_hash = int(info_value_hash, 16)
+
             hash_length = len(str(info_value_hash))
+
             delimeter = int('1' + '0' * (hash_length - hash_length // 5))
+
             info_value_hash /= delimeter
             profile_hash += info_key_hash + info_value_hash
 
@@ -527,7 +573,11 @@ def find_pair(user_id, requested):
     for item in db:
         if db[item]['age'] in range(requested['age'] - 1, requested['age'] + 2) and \
                 db[item]['sex'] == requested['sex']:
-            profiles[item] = {'sex': db[item]['sex'], 'age': db[item]['age'], 'hash': db[item]['hash']}
+            profiles[item] = {
+                'sex': db[item]['sex'],
+                'age': db[item]['age'],
+                'hash': db[item]['hash']
+            }
 
     try:
         user_hash = db[user_id]['hash']
@@ -545,12 +595,14 @@ def find_pair(user_id, requested):
         return 0
 
     selected = list(profiles.keys())[0]
+
     accepted_diff = 2 ** 128
 
     for profile in profiles:
         try:
             if profile not in blacklist and profile != user_id:
                 profile_hash = profiles[profile]['hash']
+
                 diff = abs(user_hash - profile_hash)
 
             else:
@@ -1158,7 +1210,9 @@ def main():
 
                                         try:
                                             user_info = api.users.get(user_ids=user_id, fields='personal')[0]
+
                                             time.sleep(0.1)
+
                                             api.groups.get(user_id=user_id, extended=1, fields='activity')['items']
                                         except:
                                             send(user_id, 'Поиск невозможен! &#9940;\n'
@@ -1327,159 +1381,158 @@ def main():
                 errors_file.write(str(e))
 
 
-if __name__ == '__main__':
-    clear_key = get_keyboard([])
+clear_key = get_keyboard([])
 
-    start_key = get_keyboard([[
-        ('Начать', 'зеленый'),
-        ('Последние найденные пары', 'белый')
-    ]])
+start_key = get_keyboard([[
+    ('Начать', 'зеленый'),
+    ('Последние найденные пары', 'белый')
+]])
 
-    main_menu_key = get_keyboard([[
-        ('Поиск', 'зеленый'),
-        ('Выйти', 'красный'),
-        ('Последние найденные пары', 'белый')
-    ]])
+main_menu_key = get_keyboard([[
+    ('Поиск', 'зеленый'),
+    ('Выйти', 'красный'),
+    ('Последние найденные пары', 'белый')
+]])
 
-    main_menu_key_found = get_keyboard([[
-        ('Действия', 'зеленый'),
-        ('Выйти', 'красный'),
-        ('Последние найденные пары', 'белый')
-    ]])
+main_menu_key_found = get_keyboard([[
+    ('Действия', 'зеленый'),
+    ('Выйти', 'красный'),
+    ('Последние найденные пары', 'белый')
+]])
 
-    sex_key_reg = get_keyboard([[
-        ('Женский', 'зеленый'),
-        ('Мужской', 'зеленый'),
-        ('Последние найденные пары', 'белый')
-    ]])
+sex_key_reg = get_keyboard([[
+    ('Женский', 'зеленый'),
+    ('Мужской', 'зеленый'),
+    ('Последние найденные пары', 'белый')
+]])
 
-    sex_key_search = get_keyboard([[
-        ('Женский', 'зеленый'),
-        ('Мужской', 'зеленый'),
-        ('Отмена', 'красный'),
-        ('Последние найденные пары', 'белый')
-    ]])
+sex_key_search = get_keyboard([[
+    ('Женский', 'зеленый'),
+    ('Мужской', 'зеленый'),
+    ('Отмена', 'красный'),
+    ('Последние найденные пары', 'белый')
+]])
 
-    queue_key = get_keyboard([[
-        ('Мой номер', 'красный'),
-        ('Последние найденные пары', 'белый')
-    ]])
+queue_key = get_keyboard([[
+    ('Мой номер', 'красный'),
+    ('Последние найденные пары', 'белый')
+]])
 
-    confirm_key = get_keyboard([[
-        ('ОК', 'зеленый'),
-        ('Отмена', 'красный')
-    ]])
+confirm_key = get_keyboard([[
+    ('ОК', 'зеленый'),
+    ('Отмена', 'красный')
+]])
 
-    end_key = get_keyboard([[
-        ('ОК', 'зеленый'),
-        ('Пожаловаться', 'красный'),
-        ('Повторный поиск', 'белый'),
-    ]])
+end_key = get_keyboard([[
+    ('ОК', 'зеленый'),
+    ('Пожаловаться', 'красный'),
+    ('Повторный поиск', 'белый'),
+]])
 
-    action_key = get_keyboard([[
-        ('Сообщение', 'зеленый'),
-        ('Информация', 'красный'),
-        ('Повторный поиск', 'белый'),
-        ('Выйти', 'красный'),
-        ('Последние найденные пары', 'белый')
-    ]])
+action_key = get_keyboard([[
+    ('Сообщение', 'зеленый'),
+    ('Информация', 'красный'),
+    ('Повторный поиск', 'белый'),
+    ('Выйти', 'красный'),
+    ('Последние найденные пары', 'белый')
+]])
 
-    message_key = get_keyboard([[
-        ('Отмена', 'красный')
-    ]])
+message_key = get_keyboard([[
+    ('Отмена', 'красный')
+]])
 
-    db = {}
-    queue = {}
-    reports = []
-    pending = []
-    blacklist = []
-    hash_pairs = {}
-    messages = {}
-    last_founds = []
-    registration = {}
-    active = None
-    changing_db = False
+db = {}
+queue = {}
+reports = []
+pending = []
+blacklist = []
+hash_pairs = {}
+messages = {}
+last_founds = []
+registration = {}
+active = None
+changing_db = False
 
-    male_first_names = [
-        'Александр', 'Алексей', 'Альберт', 'Анатолий', 'Андрей', 'Антон', 'Арсен', 'Арсений',
-        'Артем', 'Артемий', 'Артур', 'Богдан', 'Борис', 'Вадим', 'Валентин', 'Валерий', 'Василий',
-        'Виктор', 'Виталий', 'Владимир', 'Владислав', 'Всеволод', 'Вячеслав', 'Геннадий', 'Георгий',
-        'Глеб', 'Гордей', 'Григорий', 'Давид', 'Дамир', 'Даниил', 'Демид', 'Демьян', 'Денис',
-        'Дмитрий', 'Евгений', 'Егор', 'Захар', 'Иван', 'Игнат', 'Игорь', 'Илья', 'Ильяс',
-        'Камиль', 'Карим', 'Кирилл', 'Константин', 'Лев', 'Леонид', 'Макар', 'Максим', 'Марат',
-        'Марк', 'Марсель', 'Матвей', 'Мирон', 'Мирослав', 'Михаил', 'Назар', 'Никита', 'Николай',
-        'Олег', 'Павел', 'Петр', 'Платон', 'Прохор', 'Рамиль', 'Ратмир', 'Ринат', 'Роберт', 'Родион',
-        'Роман', 'Ростислав', 'Руслан', 'Рустам', 'Савелий', 'Святослав', 'Семен', 'Сергей',
-        'Станислав', 'Степан', 'Тамерлан', 'Тимофей', 'Тимур', 'Федор', 'Филипп', 'Шамиль', 'Эльдар',
-        'Эмиль', 'Эрик', 'Юрий', 'Ян', 'Ярослав'
-    ]
+male_first_names = [
+    'Александр', 'Алексей', 'Альберт', 'Анатолий', 'Андрей', 'Антон', 'Арсен', 'Арсений',
+    'Артем', 'Артемий', 'Артур', 'Богдан', 'Борис', 'Вадим', 'Валентин', 'Валерий', 'Василий',
+    'Виктор', 'Виталий', 'Владимир', 'Владислав', 'Всеволод', 'Вячеслав', 'Геннадий', 'Георгий',
+    'Глеб', 'Гордей', 'Григорий', 'Давид', 'Дамир', 'Даниил', 'Демид', 'Демьян', 'Денис',
+    'Дмитрий', 'Евгений', 'Егор', 'Захар', 'Иван', 'Игнат', 'Игорь', 'Илья', 'Ильяс',
+    'Камиль', 'Карим', 'Кирилл', 'Константин', 'Лев', 'Леонид', 'Макар', 'Максим', 'Марат',
+    'Марк', 'Марсель', 'Матвей', 'Мирон', 'Мирослав', 'Михаил', 'Назар', 'Никита', 'Николай',
+    'Олег', 'Павел', 'Петр', 'Платон', 'Прохор', 'Рамиль', 'Ратмир', 'Ринат', 'Роберт', 'Родион',
+    'Роман', 'Ростислав', 'Руслан', 'Рустам', 'Савелий', 'Святослав', 'Семен', 'Сергей',
+    'Станислав', 'Степан', 'Тамерлан', 'Тимофей', 'Тимур', 'Федор', 'Филипп', 'Шамиль', 'Эльдар',
+    'Эмиль', 'Эрик', 'Юрий', 'Ян', 'Ярослав'
+]
 
-    female_first_names = [
-        'Агата', 'Александра', 'Алена', 'Алина', 'Алиса', 'Альбина', 'Амина', 'Анастасия',
-        'Ангелина', 'Анна', 'Арина', 'Валентина', 'Валерия', 'Варвара', 'Василиса', 'Вера',
-        'Вероника', 'Виктория', 'Виолетта', 'Владислава', 'Галина', 'Дарина', 'Дарья', 'Диана',
-        'Евгения', 'Екатерина', 'Елена', 'Елизавета', 'Есения', 'Жанна', 'Злата', 'Инна', 'Ирина',
-        'Карина', 'Кира', 'Клавдия', 'Кристина', 'Ксения', 'Лариса', 'Лилия', 'Лина', 'Любовь',
-        'Людмила', 'Маргарита', 'Марина', 'Мария', 'Милана', 'Милена', 'Мирослава', 'Надежда',
-        'Наталья', 'Нелли', 'Ника', 'Нина', 'Оксана', 'Олеся', 'Ольга', 'Полина', 'Светлана',
-        'София', 'Стефания' 'Татьяна', 'Ульяна', 'Эвелина', 'Юлия', 'Яна', 'Ярослава'
-    ]
+female_first_names = [
+    'Агата', 'Александра', 'Алена', 'Алина', 'Алиса', 'Альбина', 'Амина', 'Анастасия',
+    'Ангелина', 'Анна', 'Арина', 'Валентина', 'Валерия', 'Варвара', 'Василиса', 'Вера',
+    'Вероника', 'Виктория', 'Виолетта', 'Владислава', 'Галина', 'Дарина', 'Дарья', 'Диана',
+    'Евгения', 'Екатерина', 'Елена', 'Елизавета', 'Есения', 'Жанна', 'Злата', 'Инна', 'Ирина',
+    'Карина', 'Кира', 'Клавдия', 'Кристина', 'Ксения', 'Лариса', 'Лилия', 'Лина', 'Любовь',
+    'Людмила', 'Маргарита', 'Марина', 'Мария', 'Милана', 'Милена', 'Мирослава', 'Надежда',
+    'Наталья', 'Нелли', 'Ника', 'Нина', 'Оксана', 'Олеся', 'Ольга', 'Полина', 'Светлана',
+    'София', 'Стефания' 'Татьяна', 'Ульяна', 'Эвелина', 'Юлия', 'Яна', 'Ярослава'
+]
 
-    male_last_names = [
-        'Иванов', 'Петров', 'Смирнов', 'Кузнецов', 'Васильев', 'Попов', 'Волков', 'Андреев', 'Сергеев',
-        'Новиков', 'Соколов', 'Михайлов', 'Алексеев', 'Павлов', 'Романов', 'Морозов', 'Макаров',
-        'Николаев', 'Егоров', 'Степанов', 'Орлов', 'Козлов', 'Никитин', 'Захаров', 'Александров',
-        'Зайцев', 'Фролов', 'Белов', 'Максимов', 'Яковлев', 'Григорьев', 'Антонов', 'Шевченко',
-        'Лебедев', 'Сидоров', 'Борисов', 'Кузьмин', 'Медведев', 'Дмитриев', 'Федоров', 'Семенов',
-        'Миронов', 'Жуков', 'Матвеев', 'Мельников', 'Коваленко', 'Тарасов', 'Бондаренко', 'Ильин',
-        'Поляков', 'Кравченко', 'Сергеевич', 'Сорокин', 'Данилов', 'Власов', 'Богданов', 'Фёдоров',
-        'Семёнов', 'Котов', 'Чернов', 'Денисов', 'Колесников', 'Карпов', 'Алиев', 'Абрамов', 'Титов',
-        'Баранов', 'Давыдов', 'Осипов', 'Гусев', 'Фомин', 'Назаров', 'Белый', 'Тимофеев', 'Филиппов',
-        'Тихонов', 'Ткаченко', 'Куликов', 'Гончаров', 'Марков', 'Беляев', 'Исаев', 'Калинин', 'Бойко',
-        'Гаврилов', 'Федотов', 'Мельник', 'Ефимов', 'Коновалов', 'Афанасьев', 'Филатов', 'Казаков',
-        'Комаров', 'Щербаков', 'Наумов', 'Виноградов', 'Савельев', 'Быков', 'Ковалев', 'Соловьев'
-    ]
+male_last_names = [
+    'Иванов', 'Петров', 'Смирнов', 'Кузнецов', 'Васильев', 'Попов', 'Волков', 'Андреев', 'Сергеев',
+    'Новиков', 'Соколов', 'Михайлов', 'Алексеев', 'Павлов', 'Романов', 'Морозов', 'Макаров',
+    'Николаев', 'Егоров', 'Степанов', 'Орлов', 'Козлов', 'Никитин', 'Захаров', 'Александров',
+    'Зайцев', 'Фролов', 'Белов', 'Максимов', 'Яковлев', 'Григорьев', 'Антонов', 'Шевченко',
+    'Лебедев', 'Сидоров', 'Борисов', 'Кузьмин', 'Медведев', 'Дмитриев', 'Федоров', 'Семенов',
+    'Миронов', 'Жуков', 'Матвеев', 'Мельников', 'Коваленко', 'Тарасов', 'Бондаренко', 'Ильин',
+    'Поляков', 'Кравченко', 'Сергеевич', 'Сорокин', 'Данилов', 'Власов', 'Богданов', 'Фёдоров',
+    'Семёнов', 'Котов', 'Чернов', 'Денисов', 'Колесников', 'Карпов', 'Алиев', 'Абрамов', 'Титов',
+    'Баранов', 'Давыдов', 'Осипов', 'Гусев', 'Фомин', 'Назаров', 'Белый', 'Тимофеев', 'Филиппов',
+    'Тихонов', 'Ткаченко', 'Куликов', 'Гончаров', 'Марков', 'Беляев', 'Исаев', 'Калинин', 'Бойко',
+    'Гаврилов', 'Федотов', 'Мельник', 'Ефимов', 'Коновалов', 'Афанасьев', 'Филатов', 'Казаков',
+    'Комаров', 'Щербаков', 'Наумов', 'Виноградов', 'Савельев', 'Быков', 'Ковалев', 'Соловьев'
+]
 
-    female_last_names = [
-        'Иванова', 'Петрова', 'Смирнова', 'Кузнецова', 'Васильева', 'Попова', 'Новикова', 'Волкова',
-        'Романова', 'Козлова', 'Соколова', 'Андреева', 'Морозова', 'Николаева', 'Михайлова', 'Павлова',
-        'Алексеева', 'Макарова', 'Сергеева', 'Егорова', 'Орлова', 'Александрова', 'Степанова',
-        'Никитина', 'Лебедева', 'Зайцева', 'Захарова', 'Яковлева', 'Максимова', 'Фролова',
-        'Григорьева', 'Шевченко', 'Миронова', 'Белова', 'Мельникова', 'Борисова', 'Кузьмина',
-        'Дмитриева', 'Федорова', 'Семенова', 'Антонова', 'Медведева', 'Полякова', 'Матвеева',
-        'Тарасова', 'Власова', 'Жукова', 'Коваленко', 'Ильина', 'Богданова', 'Бондаренко', 'Сорокина',
-        'Кравченко', 'Сидорова', 'Данилова', 'Котова', 'Калинина', 'Абрамова', 'Осипова',
-        'Колесникова', 'Филиппова', 'Руднева', 'Титова', 'Гончарова', 'Куликова', 'Давыдова',
-        'Тимофеева', 'Беляева', 'Назарова', 'Чернова', 'Карпова', 'Семёнова', 'Гусева', 'Денисова',
-        'Фёдорова', 'Маркова', 'Ткаченко', 'Фомина', 'Соловьева', 'Виноградова', 'Александровна',
-        'Ефимова', 'Ковалева', 'Афанасьева', 'Тихонова', 'Баранова', 'Савельева', 'Королева',
-        'Филатова', 'Исаева', 'Казакова', 'Малышева', 'Федотова', 'Гаврилова', 'Климова', 'Мельник',
-        'Бойко', 'Коновалова', 'Щербакова', 'Герасимова'
-    ]
+female_last_names = [
+    'Иванова', 'Петрова', 'Смирнова', 'Кузнецова', 'Васильева', 'Попова', 'Новикова', 'Волкова',
+    'Романова', 'Козлова', 'Соколова', 'Андреева', 'Морозова', 'Николаева', 'Михайлова', 'Павлова',
+    'Алексеева', 'Макарова', 'Сергеева', 'Егорова', 'Орлова', 'Александрова', 'Степанова',
+    'Никитина', 'Лебедева', 'Зайцева', 'Захарова', 'Яковлева', 'Максимова', 'Фролова',
+    'Григорьева', 'Шевченко', 'Миронова', 'Белова', 'Мельникова', 'Борисова', 'Кузьмина',
+    'Дмитриева', 'Федорова', 'Семенова', 'Антонова', 'Медведева', 'Полякова', 'Матвеева',
+    'Тарасова', 'Власова', 'Жукова', 'Коваленко', 'Ильина', 'Богданова', 'Бондаренко', 'Сорокина',
+    'Кравченко', 'Сидорова', 'Данилова', 'Котова', 'Калинина', 'Абрамова', 'Осипова',
+    'Колесникова', 'Филиппова', 'Руднева', 'Титова', 'Гончарова', 'Куликова', 'Давыдова',
+    'Тимофеева', 'Беляева', 'Назарова', 'Чернова', 'Карпова', 'Семёнова', 'Гусева', 'Денисова',
+    'Фёдорова', 'Маркова', 'Ткаченко', 'Фомина', 'Соловьева', 'Виноградова', 'Александровна',
+    'Ефимова', 'Ковалева', 'Афанасьева', 'Тихонова', 'Баранова', 'Савельева', 'Королева',
+    'Филатова', 'Исаева', 'Казакова', 'Малышева', 'Федотова', 'Гаврилова', 'Климова', 'Мельник',
+    'Бойко', 'Коновалова', 'Щербакова', 'Герасимова'
+]
 
-    admin_id = 376378729
+admin_id = 376378729
 
-    reload_db()
+reload_db()
 
-    api = vk_requests.create_api(service_token=PARSER_TOKEN, api_version='5.130')
+api = vk_requests.create_api(service_token=PARSER_TOKEN, api_version='5.130')
 
-    md5 = hashlib.md5()
+md5 = hashlib.md5()
 
-    session = vk_api.VkApi(token=BOT_TOKEN)
-    longpoll = VkLongPoll(session)
+session = vk_api.VkApi(token=BOT_TOKEN)
+longpoll = VkLongPoll(session)
 
-    parser_update_thread = threading.Thread(target=parser_token_updates)
-    parser_update_thread.start()
+parser_update_thread = threading.Thread(target=parser_token_updates)
+parser_update_thread.start()
 
-    messages_timer_thread = threading.Thread(target=messages_timer)
-    messages_timer_thread.start()
+messages_timer_thread = threading.Thread(target=messages_timer)
+messages_timer_thread.start()
 
-    last_founds_thread = threading.Thread(target=update_last_founds)
-    last_founds_thread.start()
+last_founds_thread = threading.Thread(target=update_last_founds)
+last_founds_thread.start()
 
-    queue_handler_thread = threading.Thread(target=queue_handler)
-    queue_handler_thread.start()
+queue_handler_thread = threading.Thread(target=queue_handler)
+queue_handler_thread.start()
 
-    send(admin_id, 'Бот запущен! &#9989;', start_key)
+send(admin_id, 'Бот запущен! &#9989;', start_key)
 
-    main()
+main()
