@@ -310,7 +310,7 @@ def print_facts(profile_id):
         hash_pair_facts += f'&#8226; {"Ее" if profile_info["sex"] == 1 else "Его"} ' + \
                            f'сайт: {profile_info["site"]}\n'
 
-    if profile_info.get('personal', ''):
+    if profile_info.get('personal'):
         if profile_info['personal'].get('political', 0):
             hash_pair_facts += f'&#8226; {"Ее" if profile_info["sex"] == 1 else "Его"} политические предпочтения: ' + \
                                f'{political[profile_info["personal"]["political"] - 1]}\n'
