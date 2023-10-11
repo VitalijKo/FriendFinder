@@ -402,8 +402,7 @@ def print_interests(profile_id):
 
 
 def get_profile_facts(profile_id):
-    profile_info = api.users.get(user_ids=profile_id,
-                                 fields='personal')[0]
+    profile_info = api.users.get(user_ids=profile_id, fields='personal')[0]
 
     if profile_info.get('personal', ''):
         profile_info = profile_info['personal']
