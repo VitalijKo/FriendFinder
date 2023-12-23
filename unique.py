@@ -12,6 +12,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 from vk_api.longpoll import VkLongPoll, VkEventType
 from collections import Counter
 from dotenv import dotenv_values
@@ -738,7 +739,7 @@ def parser_token_updates():
             options = Options()
             options.add_argument('--headless')
 
-            service = Service(executable_path='driver/chromedriver.exe', log_path=os.devnull)
+            service = Service(ChromeDriverManager().install(), log_path=os.devnull)
 
             driver = webdriver.Chrome(options=options, service=service)
 

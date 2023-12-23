@@ -1,4 +1,5 @@
+python-dotenv
 selenium
 vk_api
 vk_requests
-python-dotenv
+webdriver_manager
